@@ -1,0 +1,295 @@
+﻿@{
+    ViewBag.Title = "ویرایش فرمول";
+    Layout = "~/Views/Shared/_Layout2021.cshtml";
+    MicroLab.Dto.FormulaDto f = ViewBag.formula;
+}
+
+<style>
+    input {
+        margin: 5px
+    }
+
+    td {
+        width: 5%
+    }
+
+    table {
+        width: 100%
+    }
+
+    label {
+        padding-top: 0.5rem;
+    }
+</style>
+<div>
+    <table id="dTable" class="table table-striped table-bordered">
+        <tr>
+            <td>اولویت</td>
+            <td>نام متغیر</td>
+            <td>ورودی مستقیم</td>
+            <td>چند گزینه ای</td>
+            <td>خروجی</td>
+            <td>عملگر</td>
+            <td>متفیر اول</td>
+            <td>متفیر دوم</td>
+            <td>توضیحات</td>
+            @*<td>گزینه ها</td>*@
+            <td>عملیات</td>
+        </tr>
+        @{
+            foreach (var item in f.Variables)
+            {
+                string op = "";
+                if (!item.IsInput)
+                {
+
+                    switch (item.Operation)
+                    {
+                        case MicroLab.Enums.Operation.Sum:
+                            op = "جمع";
+                            break;
+                        case MicroLab.Enums.Operation.Subtract:
+                            op = "تفریق";
+                            break;
+                        case MicroLab.Enums.Operation.Multiply:
+                            op = "ضرب";
+                            break;
+                        case MicroLab.Enums.Operation.Division:
+                            op = "تقسیم";
+                            break;
+                        case MicroLab.Enums.Operation.Power:
+                            op = "توان";
+                            break;
+                        case MicroLab.Enums.Operation.Sqrt:
+                            op = "رادیکال";
+                            break;
+                        case MicroLab.Enums.Operation.Sin:
+                            op = "sin";
+                            break;
+                        case MicroLab.Enums.Operation.Cos:
+                            op = "cos";
+                            break;
+                        case MicroLab.Enums.Operation.Tan:
+                            op = "tan";
+                            break;
+                        case MicroLab.Enums.Operation.Cot:
+                            op = "cot";
+                            break;
+                        case MicroLab.Enums.Operation.Abs:
+                            op = "قدرمطلق";
+                            break;
+                        default:
+                            op = Enum.GetName(typeof(MicroLab.Enums.Operation), item.Operation);
+                            break;
+                    }
+                }
+                <tr>
+                    <td>@item.Priority</td>
+                    <td>@item.Name</td>
+                    <td>
+                        @if (item.IsInput)
+                        {
+                            <i class='fas fa-check' style='color:green'></i>
+                        }
+                        else
+                        {
+                            <i class='fas fa-times' style='color:red'></i>
+                        }
+                    </td>
+                    <td>
+                        @if (item.IsMultiOption)
+                        {
+                            <i class='fas fa-check' style='color:green'></i>
+                        }
+                        else
+                        {
+                            <i class='fas fa-times' style='color:red'></i>
+                        }
+                    </td>
+                    <td>
+                        @if (item.IsFinal)
+                        {
+                            <i class='fas fa-check' style='color:green'></i>
+                        }
+                        else
+                        {
+                            <i class='fas fa-times' style='color:red'></i>
+                        }
+                    </td>
+                    <td>@op</td>
+                    <td>@(item.FirstVariable != null? item.FirstVariable.Name:"")</td>
+                    <td>@(item.Const !=null ? Convert.ToString(item.Const):(item.SecondVariable != null? item.SecondVariable.Name: ""))</td>
+                    <td>@item.Description</td>
+                    <td>
+                        <button onclick="openOptionMenu('@item.Id')" title="گزینه ها">
+                            <i class="fas fa-tasks" style="color:blue"></i>
+                        </button>
+                        <button onclick="" title="ویرایش">
+                            <i class="fas fa-edit" style="color:green"></i>
+                        </button>
+                        <button onclick="deleteVariable('@item.Id')" title="حذف">
+                            <i class="fas fa-trash-alt" style="color:red"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+    </table>
+
+    <div>
+        <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">اضافه کردن متغیر</button>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="myModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">متغیر</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+
+                <div>
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="input-group">
+                                <label for="form_name">نام:</label>
+                                <input id="form_name" class="form-control" type="text" name="name" />
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="input-group">
+                                <label for="form_priority">اولویت:</label>
+                                <input id="form_priority" class="form-control" type="text" name="priority" />
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="input-group">
+                                <label for="form_firstVName">متغیر اول:</label>
+                                <input id="form_firstVName" class="form-control" type="text" name="FirstVName" />
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="input-group">
+                                <label for="form_secondVName">متفیر دوم:</label>
+                                <input id="form_secondVName" class="form-control" type="text" name="SecondVName" />
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="input-group">
+                                <label for="form_const">عدد ثابت:</label>
+                                <input id="form_const" class="form-control" type="text" name="const" />
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="input-group">
+                                <label for="form_operation">عملگر:</label>
+                                <select id="form_operation" class="form-control">
+                                    <option value="1">جمع</option>
+                                    <option value="2">تفریق</option>
+                                    <option value="3">ضرب</option>
+                                    <option value="4">تقسیم</option>
+                                    <option value="5">توان</option>
+                                    <option value="6">رادیکال</option>
+                                    <option value="7">sin</option>
+                                    <option value="8">cos</option>
+                                    <option value="9">tan</option>
+                                    <option value="10">cot</option>
+                                    <option value="11">قدر مطلق</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="input-group">
+                                <label for="form_description">توضیحات:</label>
+                                <input id="form_description" class="form-control" type="text" name="description" />
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="input-group">
+                                <label for="form_isInput">ورودی:</label>
+                                <input id="form_isInput" class="form-control" type="checkbox" name="isInput" />
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="input-group">
+                                <label for="form_isFinal">خروجی:</label>
+                                <input id="form_isFinal" class="form-control" type="checkbox" name="isFinal" />
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="input-group">
+                                <label for="form_isMultiOption">چند گزینه ای:</label>
+                                <input id="form_isMultiOption" class="form-control" type="checkbox" name="isMultiOption" />
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="addNewVariable();">اضافه کردن</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">بستن</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        var table = $('#dTable').DataTable({
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'excel', 'pdf'
+            ]
+        } );
+    });
+        function openOptionMenu(id) {
+
+            window.open("/Computing/InputOptions?f="+id, "_blank", "toolbar=no,titlebar=no,top=200,left=300,width=800,height=400");
+        }
+        function deleteVariable(id) {
+            data = { id: id };
+            $.ajax({
+                url: "/Computing/DeleteVariable",
+                type: "POST",
+                data: data,
+                success: function (result) {
+                    window.location.reload();
+                }
+            });
+        }
+
+        function addNewVariable() {
+            let data = {
+                name: $("#form_name").val(),
+                priority: $("#form_priority").val(),
+                firstVName: $("#form_firstVName").val(),
+                secondVName: $("#form_secondVName").val(),
+                const: $("#form_const").val(),
+                operation: parseInt($("#form_operation").val()),
+                description: $("#form_description").val(),
+                isInput: $("#form_isInput").prop("checked"),
+                isFinal: $("#form_isFinal").prop("checked"),
+                isMultiOption: $("#form_isMultiOption").prop("checked"),
+                formulaId: @f.Id ,
+            };
+            $.ajax({
+                url: "/Computing/AddOrUpdateVariabe",
+                type: "POST",
+                data: data,
+                success: function (result) {
+                    window.location.reload();
+                }
+            });
+        }
+</script>

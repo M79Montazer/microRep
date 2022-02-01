@@ -1,0 +1,35 @@
+﻿@{
+    ViewBag.Title = "ثبت نام";
+    Layout = "~/Views/Shared/_Layout2021.cshtml";
+}
+
+<div>
+    نام کاربری:<input id="form_username" type="text" name="description" /><br />
+    رمز عبور:<input id="form_password" type="password" name="isInput" /><br />
+
+    <button onclick="SignUp();">ثبت نام</button><br />
+    <a href="~/User/Login">ورود به اکانت</a>
+</div>
+
+
+
+<script>
+    function SignUp() {
+        let data = {
+            username: $("#form_username").val(),
+            password: $("#form_password").val(),
+        };
+        $.ajax({
+            url: "/User/SignUpAPI",
+            type: "POST",
+            data: data,
+            success: function (result) {
+                if (result.Success) {
+                    window.location.href = '/User/Index';
+                } else {
+                    alert(result.Text);
+                }
+            }
+        });
+    }
+</script>

@@ -1,0 +1,82 @@
+﻿@{
+    ViewBag.Title = "گزینه ها";
+    Layout = "~/Views/Shared/_Layout2021.cshtml";
+    List<MicroLab.Dto.InputOptionDto> f = ViewBag.options;
+}
+
+<style>
+    input {
+        margin: 5px
+    }
+
+    td {
+        width: 10%
+    }
+
+    table {
+        width: 90%
+    }
+</style>
+<div>
+    <table border="1">
+        <tr>
+            <td>نام </td>
+            <td>مقدار</td>
+            <td style="min-width:30%">عملیات</td>
+        </tr>
+        @{
+            foreach (var item in f)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Value</td>
+                    <td>
+                    @*<button style="width:50%" onclick="">Edit</button>*@
+                    <button  onclick="deleteOption('@item.Id')" title="حذف">
+                        <i class="fas fa-trash-alt" style="color:red"></i>
+                    </button>
+                    </td>
+                </tr>
+            }
+        }
+    </table>
+
+    <div>
+        اضافه کردن گزینه جدید:<br />
+        <div>
+            نام:<input id="form_name" type="text" name="name" /><br />
+            مقدار:<input id="form_value" type="text" name="value" /><br />
+            <button onclick="addNewOption();">اضافه کردن</button>
+        </div>
+    </div>
+</div>
+
+<script>
+        function deleteOption(id) {
+            data = { id: id };
+            $.ajax({
+                url: "/Computing/DeleteOption",
+                type: "POST",
+                data: data,
+                success: function (result) {
+                    window.location.reload();
+                }
+            });
+        }
+
+        function addNewOption() {
+            let data = {
+                name: $("#form_name").val(),
+                value: $("#form_value").val(),
+                variableId:@ViewBag.vid,
+            };
+            $.ajax({
+                url: "/Computing/AddOrUpdateOption",
+                type: "POST",
+                data: data,
+                success: function (result) {
+                    window.location.reload();
+                }
+            });
+        }
+</script>

@@ -1,0 +1,85 @@
+﻿
+@{
+    ViewBag.Title = "حل کردن فرمول";
+    Layout = "~/Views/Shared/_Layout2021.cshtml";
+    MicroLab.Dto.FormulaDto f = ViewBag.formula;
+    var v = f.Variables.Where(s => s.IsInput);
+}
+
+<style>
+    td {
+        width: 30%
+    }
+
+    table {
+        width: 80%
+    }
+</style>
+<div>
+    <table id="dTable" class="table table-striped table-bordered">
+        <tr>
+            <td>نام متغیر</td>
+            <td>عدد ورودی</td>
+            <td>توضیحات</td>
+        </tr>
+        @foreach (var item in v)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>
+                    @if (item.IsMultiOption)
+                    {
+                        <input id="input_@item.Id" vId="@item.Id" type="hidden" />
+                        <select class="form-control" id="select_@item.Id" onchange="change(@item.Id)">
+                            <option>انتخاب کنید</option>
+                            @foreach (var i in item.InputOptions)
+                            {
+                                <option value="@i.Value">@i.Name</option>
+                            }
+                        </select>
+                    }
+                    else
+                    {
+                        <input id="input_@item.Id" vId="@item.Id" type="text" />
+                    }
+                </td>
+                <td>@item.Description</td>
+            </tr>
+        }
+    </table>
+    <button class="btn btn-info btn-lg" onclick="solve()">محاسبه</button>
+</div>
+
+
+<script>
+        function change(id) {
+            $("#input_" + id).val($("#select_"+id).val());
+        }
+
+        function solve() {
+            var input = "{";
+            $('input').each(function () {
+                input += '"' + parseInt($(this).attr("vId")) + '":' + parseFloat($(this).val()) +',';
+            });
+            input += "}";
+            var data = {
+                f: @f.Id,
+                input: input
+            };
+            $.ajax({
+                url: "/Computing/Solve",
+                type: "POST",
+                data: data,
+                success: function (result) {
+                    var res = JSON.parse(result);
+                    $(res).each(function () {
+                        alert(this.Description + ' : ' + this.Value);
+                    });
+                }
+            });
+    }
+
+    $(document).ready(function () {
+        $('#dTable').DataTable();
+    });
+</script>
